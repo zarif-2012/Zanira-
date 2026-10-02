@@ -7,7 +7,7 @@
 }
 
 body {
-  background-color: #111b21;
+  background-color: #0b141a;
   color: #e9edef;
   display: flex;
   justify-content: center;
@@ -26,7 +26,7 @@ body {
   display: none !important;
 }
 
-/* --- DISGUISE CHAT UI --- */
+/* --- DISGUISE CHAT APP --- */
 .app-bar {
   background: #202c33;
   padding: 14px 16px;
@@ -47,12 +47,17 @@ body {
   letter-spacing: 0.5px;
 }
 
+.top-icons {
+  display: flex;
+  align-items: center;
+}
+
 .top-icons .icon-btn {
   background: none;
   border: none;
   color: #aebac1;
   font-size: 18px;
-  margin-left: 14px;
+  margin-left: 12px;
   cursor: pointer;
 }
 
@@ -70,7 +75,6 @@ body {
   color: #8696a0;
   font-weight: 600;
   font-size: 13px;
-  letter-spacing: 0.5px;
   cursor: pointer;
 }
 
@@ -93,15 +97,19 @@ body {
   cursor: pointer;
 }
 
+.chat-item:active {
+  background: #202c33;
+}
+
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 46px;
+  height: 46px;
   background: #2a3942;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .chat-info {
@@ -128,18 +136,22 @@ body {
 .chat-snippet {
   font-size: 13px;
   color: #8696a0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
 }
 
 .fab {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 56px;
-  height: 56px;
+  width: 54px;
+  height: 54px;
   background: #00a884;
   border-radius: 50%;
   border: none;
-  font-size: 24px;
+  font-size: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -147,14 +159,125 @@ body {
   cursor: pointer;
 }
 
-/* --- SECRET EARNING HUB UI --- */
+/* --- ACTIVE CONVERSATION SCREEN --- */
+.conversation-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: #0b141a;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.conv-header {
+  background: #202c33;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-small {
+  width: 38px;
+  height: 38px;
+  background: #2a3942;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.conv-title-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+#conv-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.status-indicator {
+  font-size: 11px;
+  color: #00a884;
+}
+
+.messages-container {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bubble {
+  max-width: 75%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.bubble.sent {
+  align-self: flex-end;
+  background: #005c4b;
+  color: #e9edef;
+  border-top-right-radius: 2px;
+}
+
+.bubble.received {
+  align-self: flex-start;
+  background: #202c33;
+  color: #e9edef;
+  border-top-left-radius: 2px;
+}
+
+.chat-input-bar {
+  background: #202c33;
+  padding: 10px 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.chat-input-bar input {
+  flex: 1;
+  background: #2a3942;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 20px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.chat-input-bar input:focus {
+  outline: none;
+}
+
+.send-btn {
+  background: #00a884;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* --- SECRET HUB --- */
 #earning-layer {
   background: #0d1117;
 }
 
 .secret-bar {
   background: #161b22;
-  padding: 16px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -168,23 +291,15 @@ body {
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 12px;
-  font-weight: 600;
   cursor: pointer;
-}
-
-.secret-bar h2 {
-  font-size: 17px;
-  font-weight: 600;
-  color: #f0f6fc;
 }
 
 .user-badge {
   background: #238636;
   font-size: 11px;
-  font-weight: bold;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 12px;
-  color: #fff;
+  font-weight: bold;
 }
 
 .earning-content {
@@ -198,14 +313,12 @@ body {
   background: linear-gradient(135deg, #1f6feb 0%, #1158c7 100%);
   border-radius: 14px;
   padding: 20px;
-  box-shadow: 0 6px 20px rgba(31, 111, 235, 0.25);
 }
 
 .wallet-card .label {
   font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
   color: #c9d1d9;
+  text-transform: uppercase;
 }
 
 .balance-row {
@@ -217,7 +330,6 @@ body {
 
 .currency {
   font-size: 24px;
-  font-weight: 600;
 }
 
 .amount {
@@ -241,13 +353,13 @@ body {
 }
 
 .action-btn.withdraw {
-  background: #ffffff;
+  background: #fff;
   color: #0d1117;
 }
 
 .action-btn.history {
   background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  color: #fff;
 }
 
 .quick-stats {
@@ -268,7 +380,7 @@ body {
 }
 
 .stat-num {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: #58a6ff;
 }
@@ -298,7 +410,6 @@ body {
 .task-title {
   display: block;
   font-size: 14px;
-  font-weight: 500;
   color: #f0f6fc;
 }
 
@@ -312,10 +423,9 @@ body {
   background: #238636;
   color: #fff;
   border: none;
-  padding: 8px 16px;
+  padding: 8px 14px;
   border-radius: 6px;
   font-size: 12px;
-  font-weight: 600;
   cursor: pointer;
 }
 
@@ -323,4 +433,128 @@ body {
   background: #30363d;
   color: #8b949e;
   cursor: not-allowed;
+}
+
+/* --- MODAL POPUPS --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-card h2, .modal-card h3 {
+  font-size: 18px;
+  color: #f0f6fc;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.country-prefix {
+  font-weight: bold;
+  color: #8b949e;
+  margin-right: 8px;
+}
+
+.input-group input, .modal-card input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+}
+
+.input-group input:focus, .modal-card input:focus {
+  outline: none;
+}
+
+.withdraw-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.withdraw-field label {
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.withdraw-field input {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.primary-btn {
+  background: #00a884;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: transparent;
+  color: #8b949e;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.error-msg {
+  color: #f85149;
+  font-size: 12px;
+}
+
+.status-msg {
+  color: #3fb950;
+  font-size: 12px;
+}
+
+.text-link {
+  background: none;
+  border: none;
+  color: #58a6ff;
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 8px;
 }
