@@ -5,17 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Zanira</title>
   <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase App & Auth SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
-  <!-- ==================== FRONT LAYER: CHAT DISGUISE ==================== -->
+  <!-- ==================== AUTH MODAL: PHONE LOGIN ==================== -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-card">
+      <h2>Welcome to Zanira</h2>
+      <p class="subtitle">Enter your phone number to continue</p>
+      
+      <div id="phone-step">
+        <div class="input-group">
+          <span class="country-prefix">+91</span>
+          <input type="tel" id="phone-number" placeholder="Enter 10-digit number" maxlength="10">
+        </div>
+        <div id="recaptcha-container"></div>
+        <button id="send-otp-btn" class="primary-btn">Send OTP</button>
+      </div>
+
+      <div id="otp-step" class="hidden">
+        <input type="text" id="otp-code" placeholder="Enter 6-digit OTP" maxlength="6">
+        <button id="verify-otp-btn" class="primary-btn">Verify & Login</button>
+        <button id="back-to-phone" class="text-link">Change Number</button>
+      </div>
+      <p id="auth-error" class="error-msg"></p>
+    </div>
+  </div>
+
+
+  <!-- ==================== LAYER 1: DISGUISE CHAT APP ==================== -->
   <div id="chat-layer" class="screen active">
+    <!-- Top Bar -->
     <header class="app-bar">
-      <!-- SECRET TRIGGER: Tapping 'Zanira' 3 times opens the secret layer -->
+      <!-- SECRET TRIGGER: 3 taps on "Zanira" opens the earning hub -->
       <div id="secret-trigger" class="logo-area">
         <h1>Zanira</h1>
       </div>
       <div class="top-icons">
+        <button class="icon-btn" id="logout-btn" title="Logout">⎋</button>
         <button class="icon-btn" title="Search">🔍</button>
         <button class="icon-btn" title="Menu">⋮</button>
       </div>
@@ -27,89 +58,110 @@
       <button class="tab-btn">CALLS</button>
     </nav>
 
-    <main class="chat-list">
-      <div class="chat-item">
+    <!-- Chat List Screen -->
+    <main class="chat-list" id="chat-list-view">
+      <div class="chat-item" data-id="alex" data-name="Alex Miller">
         <div class="avatar">👨‍💻</div>
         <div class="chat-info">
           <div class="chat-top">
             <span class="chat-name">Alex Miller</span>
             <span class="chat-time">10:42 AM</span>
           </div>
-          <p class="chat-snippet">Let's review the mockups later tonight.</p>
+          <p class="chat-snippet" id="snippet-alex">Let's review the mockups later tonight.</p>
         </div>
       </div>
 
-      <div class="chat-item">
+      <div class="chat-item" data-id="team" data-name="Dev Team Global">
         <div class="avatar">💼</div>
         <div class="chat-info">
           <div class="chat-top">
             <span class="chat-name">Dev Team Global</span>
             <span class="chat-time">Yesterday</span>
           </div>
-          <p class="chat-snippet">Sprint planning starts at 3 PM UTC.</p>
+          <p class="chat-snippet" id="snippet-team">Sprint planning starts at 3 PM UTC.</p>
         </div>
       </div>
 
-      <div class="chat-item">
+      <div class="chat-item" data-id="sarah" data-name="Sarah Wilson">
         <div class="avatar">🌟</div>
         <div class="chat-info">
           <div class="chat-top">
             <span class="chat-name">Sarah Wilson</span>
             <span class="chat-time">Wednesday</span>
           </div>
-          <p class="chat-snippet">See you tomorrow!</p>
+          <p class="chat-snippet" id="snippet-sarah">See you tomorrow!</p>
         </div>
       </div>
     </main>
+
+    <!-- Active Conversation View -->
+    <div id="conversation-view" class="conversation-screen hidden">
+      <div class="conv-header">
+        <button id="close-conv-btn" class="icon-btn">←</button>
+        <div class="avatar-small">💬</div>
+        <div class="conv-title-wrap">
+          <span id="conv-name">Name</span>
+          <span class="status-indicator">online</span>
+        </div>
+      </div>
+
+      <div class="messages-container" id="messages-container"></div>
+
+      <form id="chat-input-bar" class="chat-input-bar">
+        <input type="text" id="chat-input" placeholder="Message..." autocomplete="off">
+        <button type="submit" class="send-btn">➤</button>
+      </form>
+    </div>
 
     <button class="fab" title="New Chat">💬</button>
   </div>
 
 
-  <!-- ==================== SECRET LAYER: EARNING HUB ==================== -->
+  <!-- ==================== LAYER 2: SECRET EARNING HUB ==================== -->
   <div id="earning-layer" class="screen hidden">
     <header class="secret-bar">
-      <button id="lock-btn" class="back-btn" title="Lock back to chat">← Lock</button>
+      <button id="lock-btn" class="back-btn">← Disguise</button>
       <h2>Zanira Rewards</h2>
-      <div class="user-badge">VIP 1</div>
+      <div class="user-badge" id="user-phone-tag">VIP</div>
     </header>
 
     <main class="earning-content">
-      <!-- Wallet Card -->
+      <!-- Balance Card -->
       <section class="wallet-card">
-        <span class="label">Total Balance</span>
+        <span class="label">Total Earned</span>
         <div class="balance-row">
           <span class="currency">₹</span>
-          <span id="wallet-balance" class="amount">245.50</span>
+          <span id="wallet-balance" class="amount">0.00</span>
         </div>
         <div class="wallet-actions">
-          <button class="action-btn withdraw" id="withdraw-btn">Withdraw</button>
-          <button class="action-btn history">History</button>
+          <button class="action-btn withdraw" id="open-withdraw-btn">Withdraw</button>
+          <button class="action-btn history" id="refresh-balance-btn">Sync</button>
         </div>
       </section>
 
-      <!-- Quick Stats -->
+      <!-- Quick Metrics -->
       <section class="quick-stats">
         <div class="stat-box">
-          <span class="stat-num" id="tasks-done">4</span>
-          <span class="stat-label">Done Tasks</span>
+          <span class="stat-num" id="tasks-done">0</span>
+          <span class="stat-label">Tasks Done</span>
         </div>
         <div class="stat-box">
-          <span class="stat-num">₹32.00</span>
-          <span class="stat-label">Today</span>
+          <span class="stat-num">₹100.00</span>
+          <span class="stat-label">Min Payout</span>
         </div>
         <div class="stat-box">
-          <span class="stat-num">12</span>
-          <span class="stat-label">Referrals</span>
+          <span class="stat-num">Active</span>
+          <span class="stat-label">Status</span>
         </div>
       </section>
 
-      <!-- Task Hub -->
+      <!-- Tasks Section -->
       <section class="task-section">
-        <h3>Available Tasks</h3>
+        <h3>Earning Tasks</h3>
+
         <div class="task-card">
           <div class="task-details">
-            <span class="task-title">Daily Check-in</span>
+            <span class="task-title">Daily Attendance Bonus</span>
             <span class="task-reward">+ ₹5.00</span>
           </div>
           <button class="claim-btn" id="checkin-btn">Claim</button>
@@ -117,21 +169,46 @@
 
         <div class="task-card">
           <div class="task-details">
-            <span class="task-title">Watch Short Promo</span>
-            <span class="task-reward">+ ₹2.50</span>
+            <span class="task-title">Scratch & Win Card</span>
+            <span class="task-reward">Up to ₹20.00</span>
           </div>
-          <button class="claim-btn">Start</button>
+          <button class="claim-btn" id="scratch-btn">Scratch</button>
         </div>
 
         <div class="task-card">
           <div class="task-details">
-            <span class="task-title">Invite 1 Active Friend</span>
-            <span class="task-reward">+ ₹25.00</span>
+            <span class="task-title">Watch 15s Sponsor Video</span>
+            <span class="task-reward">+ ₹3.50</span>
           </div>
-          <button class="claim-btn">Invite</button>
+          <button class="claim-btn" id="video-ad-btn">Watch</button>
         </div>
       </section>
     </main>
+  </div>
+
+
+  <!-- ==================== WITHDRAWAL MODAL ==================== -->
+  <div id="withdraw-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h3>Withdraw Earnings</h3>
+      <p class="subtitle">Payouts processed directly via UPI</p>
+
+      <div class="withdraw-field">
+        <label>Your UPI ID (e.g. mobile@upi):</label>
+        <input type="text" id="upi-id" placeholder="username@okhdfcbank">
+      </div>
+
+      <div class="withdraw-field">
+        <label>Amount (₹):</label>
+        <input type="number" id="withdraw-amount" placeholder="Min ₹100">
+      </div>
+
+      <div class="modal-actions">
+        <button id="submit-withdraw-btn" class="primary-btn">Request Payout</button>
+        <button id="close-withdraw-btn" class="cancel-btn">Cancel</button>
+      </div>
+      <p id="withdraw-status" class="status-msg"></p>
+    </div>
   </div>
 
   <script src="app.js"></script>
