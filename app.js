@@ -441,3 +441,126 @@ submitWithdrawBtn.addEventListener('click', () => {
     amountInput.value = '';
   }, 2200);
 });
+// ==================== LIVE FIREBASE INITIALIZATION ====================
+const firebaseConfig = {
+  apiKey: "AIzaSyAoNaAx17GuNmETjmSf4OsrisTXkjMfIlE",
+  authDomain: "zanira-e1d54.firebaseapp.com",
+  projectId: "zanira-e1d54",
+  storageBucket: "zanira-e1d54.firebasestorage.app",
+  messagingSenderId: "274319354869",
+  appId: "1:274319354869:web:169ae126b1943e92f7cebc",
+  measurementId: "G-MV8KH56444"
+};
+
+// Initialize Firebase SDK
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const auth = firebase.auth();
+
+// DOM references
+const authModal = document.getElementById('auth-modal');
+const phoneStep = document.getElementById('phone-step');
+const otpStep = document.getElementById('otp-step');
+const phoneInput = document.getElementById('phone-number');
+const otpInput = document.getElementById('otp-code');
+const sendOtpBtn = document.getElementById('send-otp-btn');
+const verifyOtpBtn = document.getElementById('verify-otp-btn');
+const backToPhoneBtn = document.getElementById('back-to-phone');
+const authError = document.getElementById('auth-error');
+const userPhoneTag = document.getElementById('user-phone-tag');
+const logoutBtn = document.getElementById('logout-btn');
+
+let confirmationResult = null;
+
+// Initialize Invisible reCAPTCHA
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+  size: 'invisible',
+  callback: (response) => {
+    // reCAPTCHA solved
+  },
+  'expired-callback': () => {
+    authError.textContent = 'Verification expired. Please try again.';
+  }
+});
+
+// Real-time Authentication Listener
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    authModal.classList.add('hidden');
+    if (userPhoneTag) userPhoneTag.textContent = user.phoneNumber || 'User';
+  } else {
+    authModal.classList.remove('hidden');
+  }
+});
+
+// Send SMS OTP
+sendOtpBtn.addEventListener('click', () => {
+  authError.textContent = '';
+  const num = phoneInput.value.trim();
+
+  if (num.length !== 10 || isNaN(num)) {
+    authError.textContent = 'Please enter a valid 10-digit phone number.';
+    return;
+  }
+
+  const fullPhone = '+91' + num;
+  sendOtpBtn.disabled = true;
+  sendOtpBtn.textContent = 'Sending SMS...';
+
+  auth.signInWithPhoneNumber(fullPhone, window.recaptchaVerifier)
+    .then((result) => {
+      confirmationResult = result;
+      phoneStep.classList.add('hidden');
+      otpStep.classList.remove('hidden');
+      sendOtpBtn.disabled = false;
+      sendOtpBtn.textContent = 'Get OTP';
+    })
+    .catch((err) => {
+      sendOtpBtn.disabled = false;
+      sendOtpBtn.textContent = 'Get OTP';
+      authError.textContent = err.message;
+      if (window.grecaptcha && window.recaptchaWidgetId !== undefined) {
+        grecaptcha.reset(window.recaptchaWidgetId);
+      }
+    });
+});
+
+// Verify SMS OTP
+verifyOtpBtn.addEventListener('click', () => {
+  authError.textContent = '';
+  const code = otpInput.value.trim();
+
+  if (code.length !== 6) {
+    authError.textContent = 'Enter the 6-digit code received.';
+    return;
+  }
+
+  verifyOtpBtn.disabled = true;
+  verifyOtpBtn.textContent = 'Verifying...';
+
+  confirmationResult.confirm(code)
+    .then(() => {
+      verifyOtpBtn.disabled = false;
+      verifyOtpBtn.textContent = 'Verify & Proceed';
+      otpInput.value = '';
+    })
+    .catch((err) => {
+      verifyOtpBtn.disabled = false;
+      verifyOtpBtn.textContent = 'Verify & Proceed';
+      authError.textContent = 'Invalid OTP: ' + err.message;
+    });
+});
+
+backToPhoneBtn.addEventListener('click', () => {
+  otpStep.classList.add('hidden');
+  phoneStep.classList.remove('hidden');
+});
+
+logoutBtn.addEventListener('click', () => {
+  auth.signOut().then(() => {
+    phoneStep.classList.remove('hidden');
+    otpStep.classList.add('hidden');
+    phoneInput.value = '';
+  });
+});
